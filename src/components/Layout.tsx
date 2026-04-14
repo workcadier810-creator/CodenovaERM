@@ -24,7 +24,7 @@ const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
           <div className="bg-amber-500 p-2 rounded-lg shadow-lg shadow-amber-500/20">
             <Zap className="text-black" size={24} />
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-amber-500">CodeNova<span className="text-white">ERM</span></h1>
+          <h1 className="text-xl font-bold tracking-tight text-amber-500">Codenova<span className="text-white">ERM</span></h1>
         </div>
 
         <nav className="flex-1 px-4 space-y-2 mt-4">

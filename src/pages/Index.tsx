@@ -1,18 +1,53 @@
-// Update this page (the content is just a fallback if you fail to update the page)
-
-import { MadeWithDyad } from "@/components/made-with-dyad";
+import React, { useState } from 'react';
+import Layout from '@/components/Layout';
+import CRM, { Customer } from '@/components/CRM';
+import Inventory, { InventoryItem } from '@/components/Inventory';
+import Invoicing, { Invoice } from '@/components/Invoicing';
+import Settings from '@/components/Settings';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 const Index = () => {
+  const [activeTab, setActiveTab] = useState('crm');
+  
+  // Persistent State
+  const [businessDetails, setBusinessDetails] = useLocalStorage('codenova_business', {
+    name: '',
+    phone: '',
+    address: '',
+    email: ''
+  });
+  
+  const [customers, setCustomers] = useLocalStorage<Customer[]>('codenova_customers', []);
+  const [inventory, setInventory] = useLocalStorage<InventoryItem[]>('codenova_inventory', []);
+  const [invoices, setInvoices] = useLocalStorage<Invoice[]>('codenova_invoices', []);
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'crm':
+        return <CRM customers={customers} onUpdate={setCustomers} />;
+      case 'inventory':
+        return <Inventory items={inventory} onUpdate={setInventory} />;
+      case 'invoicing':
+        return (
+          <Invoicing 
+            inventory={inventory} 
+            invoices={invoices} 
+            businessDetails={businessDetails}
+            onUpdateInventory={setInventory}
+            onSaveInvoice={(inv) => setInvoices([inv, ...invoices])}
+          />
+        );
+      case 'settings':
+        return <Settings details={businessDetails} onSave={setBusinessDetails} />;
+      default:
+        return <CRM customers={customers} onUpdate={setCustomers} />;
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">
-          Start building your amazing project here!
-        </p>
-      </div>
-      <MadeWithDyad />
-    </div>
+    <Layout activeTab={activeTab} setActiveTab={setActiveTab}>
+      {renderContent()}
+    </Layout>
   );
 };
 

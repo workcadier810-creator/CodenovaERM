@@ -160,8 +160,8 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
     const tableData = invoice.items.map(item => [
       item.name,
       item.quantity.toString(),
-      `$${item.price.toFixed(2)}`,
-      `$${(item.price * item.quantity).toFixed(2)}`
+      `Rs. ${item.price.toFixed(2)}`,
+      `Rs. ${(item.price * item.quantity).toFixed(2)}`
     ]);
     
     (doc as any).autoTable({
@@ -176,7 +176,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
     
     // Total
     doc.setFontSize(14);
-    doc.text(`Grand Total: $${invoice.total.toFixed(2)}`, 140, finalY + 20);
+    doc.text(`Grand Total: Rs. ${invoice.total.toFixed(2)}`, 140, finalY + 20);
     
     doc.save(`${invoice.id}_${invoice.clientName.replace(/\s+/g, '_')}.pdf`);
   };
@@ -297,10 +297,10 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                           />
                         </TableCell>
                         <TableCell className="text-white font-mono">
-                          ${item.price.toFixed(2)}
+                          ₹{item.price.toFixed(2)}
                         </TableCell>
                         <TableCell className="text-amber-500 font-bold font-mono">
-                          ${(item.price * item.quantity).toFixed(2)}
+                          ₹{(item.price * item.quantity).toFixed(2)}
                         </TableCell>
                         <TableCell>
                           <Button 
@@ -327,7 +327,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                 <div className="mt-8 flex flex-col items-end gap-4">
                   <div className="text-right">
                     <p className="text-gray-400 text-sm">Grand Total</p>
-                    <p className="text-4xl font-bold text-white">${calculateTotal().toFixed(2)}</p>
+                    <p className="text-4xl font-bold text-white">₹{calculateTotal().toFixed(2)}</p>
                   </div>
                   <Button 
                     onClick={generateInvoice}
@@ -379,7 +379,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                         <div className="text-white font-medium">{inv.clientName}</div>
                         <div className="text-xs text-gray-500">{inv.clientEmail}</div>
                       </TableCell>
-                      <TableCell className="text-white font-bold">${inv.total.toFixed(2)}</TableCell>
+                      <TableCell className="text-white font-bold">₹{inv.total.toFixed(2)}</TableCell>
                       <TableCell className="text-right">
                         <Button 
                           variant="outline" 

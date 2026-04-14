@@ -130,7 +130,7 @@ const Inventory = ({ items, onUpdate }: InventoryProps) => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Unit Price ($)</Label>
+                    <Label>Unit Price (₹)</Label>
                     <Input 
                       type="number"
                       value={newItem.price} 
@@ -176,7 +176,7 @@ const Inventory = ({ items, onUpdate }: InventoryProps) => {
                   <div className="font-medium text-white">{item.name}</div>
                   <div className="text-xs text-gray-500 truncate max-w-[200px]">{item.description}</div>
                 </TableCell>
-                <TableCell className="text-white">${item.price.toFixed(2)}</TableCell>
+                <TableCell className="text-white">₹{item.price.toFixed(2)}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <span className={cn(

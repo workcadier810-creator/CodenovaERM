@@ -9,7 +9,14 @@ import { Plus, User, Building, Phone, Mail, ArrowRight, Trash2 } from 'lucide-re
 import { showSuccess } from '@/utils/toast';
 import { cn } from '@/lib/utils';
 
-export type CustomerStage = 'Potential' | 'Undergoing' | 'Won';
+export type CustomerStage = 
+  | 'lead stage' 
+  | 'suspect stage' 
+  | 'prospect stage' 
+  | 'qualified stage' 
+  | 'closed stage' 
+  | 'closed drop' 
+  | 'closed lost';
 
 export interface Customer {
   id: string;
@@ -28,8 +35,18 @@ interface CRMProps {
 const CRM = ({ customers, onUpdate }: CRMProps) => {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [newCustomer, setNewCustomer] = useState<Partial<Customer>>({
-    stage: 'Potential'
+    stage: 'lead stage'
   });
+
+  const stages: CustomerStage[] = [
+    'lead stage', 
+    'suspect stage', 
+    'prospect stage', 
+    'qualified stage', 
+    'closed stage', 
+    'closed drop', 
+    'closed lost'
+  ];
 
   const handleAdd = () => {
     if (!newCustomer.name || !newCustomer.company) return;
@@ -42,7 +59,7 @@ const CRM = ({ customers, onUpdate }: CRMProps) => {
       stage: newCustomer.stage as CustomerStage,
     };
     onUpdate([...customers, customer]);
-    setNewCustomer({ stage: 'Potential' });
+    setNewCustomer({ stage: 'lead stage' });
     setIsAddOpen(false);
     showSuccess("Customer added successfully!");
   };
@@ -56,13 +73,27 @@ const CRM = ({ customers, onUpdate }: CRMProps) => {
     onUpdate(customers.filter(c => c.id !== id));
   };
 
-  const stages: CustomerStage[] = ['Potential', 'Undergoing', 'Won'];
-
   const getStageColor = (stage: CustomerStage) => {
     switch (stage) {
-      case 'Potential': return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
-      case 'Undergoing': return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
-      case 'Won': return 'bg-green-500/10 text-green-400 border-green-500/20';
+      case 'lead stage': return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
+      case 'suspect stage': return 'bg-purple-500/10 text-purple-400 border-purple-500/20';
+      case 'prospect stage': return 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20';
+      case 'qualified stage': return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
+      case 'closed stage': return 'bg-green-500/10 text-green-400 border-green-500/20';
+      case 'closed drop': return 'bg-gray-500/10 text-gray-400 border-gray-500/20';
+      case 'closed lost': return 'bg-red-500/10 text-red-400 border-red-500/20';
+    }
+  };
+
+  const getDotColor = (stage: CustomerStage) => {
+    switch (stage) {
+      case 'lead stage': return 'bg-blue-500';
+      case 'suspect stage': return 'bg-purple-500';
+      case 'prospect stage': return 'bg-indigo-500';
+      case 'qualified stage': return 'bg-amber-500';
+      case 'closed stage': return 'bg-green-500';
+      case 'closed drop': return 'bg-gray-500';
+      case 'closed lost': return 'bg-red-500';
     }
   };
 
@@ -71,7 +102,7 @@ const CRM = ({ customers, onUpdate }: CRMProps) => {
       <header className="flex justify-between items-end">
         <div>
           <h2 className="text-3xl font-bold text-white">Customer Pipeline</h2>
-          <p className="text-gray-400 mt-1">Track and manage your business relationships.</p>
+          <p className="text-gray-400 mt-1">Track and manage your business relationships through the sales funnel.</p>
         </div>
         
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
@@ -140,56 +171,53 @@ const CRM = ({ customers, onUpdate }: CRMProps) => {
         </Dialog>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4 overflow-x-auto pb-4">
         {stages.map(stage => (
-          <div key={stage} className="space-y-4">
+          <div key={stage} className="space-y-4 min-w-[200px]">
             <div className="flex items-center justify-between px-2">
-              <h3 className="font-bold text-lg flex items-center gap-2">
-                <span className={cn("w-2 h-2 rounded-full", 
-                  stage === 'Potential' ? 'bg-blue-500' : 
-                  stage === 'Undergoing' ? 'bg-amber-500' : 'bg-green-500'
-                )} />
-                {stage}
+              <h3 className="font-bold text-sm flex items-center gap-2 whitespace-nowrap">
+                <span className={cn("w-2 h-2 rounded-full", getDotColor(stage))} />
+                {stage.replace(' stage', '')}
               </h3>
-              <span className="bg-[#1E1E1E] text-gray-400 text-xs px-2 py-1 rounded-full border border-amber-900/10">
+              <span className="bg-[#1E1E1E] text-gray-400 text-[10px] px-2 py-0.5 rounded-full border border-amber-900/10">
                 {customers.filter(c => c.stage === stage).length}
               </span>
             </div>
 
-            <div className="space-y-4 min-h-[200px]">
+            <div className="space-y-3 min-h-[200px]">
               {customers.filter(c => c.stage === stage).map(customer => (
                 <Card key={customer.id} className="bg-[#1E1E1E] border-amber-900/10 hover:border-amber-500/30 transition-all group">
-                  <CardContent className="p-4 space-y-3">
+                  <CardContent className="p-3 space-y-2">
                     <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-bold text-white group-hover:text-amber-400 transition-colors">{customer.name}</h4>
-                        <p className="text-xs text-gray-400 flex items-center gap-1 mt-1">
-                          <Building size={12} /> {customer.company}
+                      <div className="overflow-hidden">
+                        <h4 className="font-bold text-sm text-white group-hover:text-amber-400 transition-colors truncate">{customer.name}</h4>
+                        <p className="text-[10px] text-gray-400 flex items-center gap-1 mt-0.5 truncate">
+                          <Building size={10} /> {customer.company}
                         </p>
                       </div>
                       <button 
                         onClick={() => deleteCustomer(customer.id)}
-                        className="text-gray-600 hover:text-red-500 transition-colors"
+                        className="text-gray-600 hover:text-red-500 transition-colors flex-shrink-0"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={12} />
                       </button>
                     </div>
 
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 flex items-center gap-2">
-                        <Mail size={12} /> {customer.email || 'No email'}
+                    <div className="space-y-0.5">
+                      <p className="text-[10px] text-gray-500 flex items-center gap-2 truncate">
+                        <Mail size={10} /> {customer.email || 'No email'}
                       </p>
-                      <p className="text-xs text-gray-500 flex items-center gap-2">
-                        <Phone size={12} /> {customer.phone || 'No phone'}
+                      <p className="text-[10px] text-gray-500 flex items-center gap-2 truncate">
+                        <Phone size={10} /> {customer.phone || 'No phone'}
                       </p>
                     </div>
 
-                    <div className="pt-2 flex justify-between items-center">
+                    <div className="pt-1 flex flex-col gap-2">
                       <Select 
                         value={customer.stage} 
                         onValueChange={(v) => updateStage(customer.id, v as CustomerStage)}
                       >
-                        <SelectTrigger className={cn("h-7 text-[10px] px-2 border-none", getStageColor(customer.stage))}>
+                        <SelectTrigger className={cn("h-6 text-[9px] px-2 border-none", getStageColor(customer.stage))}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-[#1E1E1E] border-amber-900/20 text-white">
@@ -197,14 +225,14 @@ const CRM = ({ customers, onUpdate }: CRMProps) => {
                         </SelectContent>
                       </Select>
                       
-                      {stage !== 'Won' && (
+                      {stages.indexOf(stage) < 4 && (
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          className="h-7 text-[10px] text-amber-500 hover:text-amber-400 hover:bg-amber-500/10"
-                          onClick={() => updateStage(customer.id, stage === 'Potential' ? 'Undergoing' : 'Won')}
+                          className="h-6 text-[9px] text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 w-full"
+                          onClick={() => updateStage(customer.id, stages[stages.indexOf(stage) + 1])}
                         >
-                          Next <ArrowRight size={10} className="ml-1" />
+                          Advance <ArrowRight size={10} className="ml-1" />
                         </Button>
                       )}
                     </div>
@@ -212,8 +240,8 @@ const CRM = ({ customers, onUpdate }: CRMProps) => {
                 </Card>
               ))}
               {customers.filter(c => c.stage === stage).length === 0 && (
-                <div className="border-2 border-dashed border-amber-900/10 rounded-xl p-8 text-center">
-                  <p className="text-gray-600 text-sm italic">No customers in this stage</p>
+                <div className="border-2 border-dashed border-amber-900/10 rounded-xl p-4 text-center">
+                  <p className="text-gray-600 text-[10px] italic">Empty</p>
                 </div>
               )}
             </div>

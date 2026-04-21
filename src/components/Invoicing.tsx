@@ -165,7 +165,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
         // Set transparency for watermark
         doc.saveGraphicsState();
         // @ts-ignore - GState is available in jsPDF but types might be missing
-        const gState = new doc.GState({ opacity: 0.05 });
+        const gState = new doc.GState({ opacity: 0.12 }); // Increased from 0.05
         doc.setGState(gState);
         
         // Center the watermark (A4 is 210x297mm)
@@ -479,7 +479,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                         <div className="relative p-10 space-y-8 min-h-[600px]">
                           {/* Watermark */}
                           {businessDetails.logo && (
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] z-0">
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.08] z-0">
                               <img 
                                 src={businessDetails.logo} 
                                 alt="Watermark" 

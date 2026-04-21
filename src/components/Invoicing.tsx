@@ -159,6 +159,28 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
   const downloadPDF = (invoice: Invoice) => {
     const doc = new jsPDF();
     
+    // Watermark Logic
+    if (invoice.businessDetails.logo) {
+      try {
+        // Set transparency for watermark
+        doc.saveGraphicsState();
+        // @ts-ignore - GState is available in jsPDF but types might be missing
+        const gState = new doc.GState({ opacity: 0.05 });
+        doc.setGState(gState);
+        
+        // Center the watermark (A4 is 210x297mm)
+        const imgWidth = 120;
+        const imgHeight = 120;
+        const x = (210 - imgWidth) / 2;
+        const y = (297 - imgHeight) / 2;
+        
+        doc.addImage(invoice.businessDetails.logo, 'PNG', x, y, imgWidth, imgHeight);
+        doc.restoreGraphicsState();
+      } catch (e) {
+        console.error("Watermark error:", e);
+      }
+    }
+
     // 1. Top-Left Branding Block
     if (invoice.businessDetails.logo) {
       try {
@@ -454,95 +476,108 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                         </Button>
                       </DialogTrigger>
                       <DialogContent className="bg-white text-black max-w-3xl p-0 overflow-hidden rounded-2xl">
-                        <div className="p-10 space-y-8">
-                          {/* Header */}
-                          <div className="flex justify-between items-start">
-                            <div className="flex gap-4">
-                              <div className="w-16 h-16 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20 overflow-hidden">
-                                {businessDetails.logo ? (
-                                  <img src={businessDetails.logo} alt="Logo" className="w-full h-full object-contain p-2" />
-                                ) : (
-                                  <Zap className="text-black" size={32} />
-                                )}
+                        <div className="relative p-10 space-y-8 min-h-[600px]">
+                          {/* Watermark */}
+                          {businessDetails.logo && (
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.03] z-0">
+                              <img 
+                                src={businessDetails.logo} 
+                                alt="Watermark" 
+                                className="w-96 h-96 object-contain grayscale"
+                              />
+                            </div>
+                          )}
+
+                          <div className="relative z-10 space-y-8">
+                            {/* Header */}
+                            <div className="flex justify-between items-start">
+                              <div className="flex gap-4">
+                                <div className="w-16 h-16 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20 overflow-hidden">
+                                  {businessDetails.logo ? (
+                                    <img src={businessDetails.logo} alt="Logo" className="w-full h-full object-contain p-2" />
+                                  ) : (
+                                    <Zap className="text-black" size={32} />
+                                  )}
+                                </div>
+                                <div className="space-y-1">
+                                  <h3 className="text-2xl font-bold tracking-tight">{businessDetails.name || 'CODENOVA ERM'}</h3>
+                                  <div className="space-y-0.5 text-sm text-gray-500">
+                                    <p className="flex items-center gap-2"><Mail size={12} /> {businessDetails.email}</p>
+                                    <p className="flex items-center gap-2"><Phone size={12} /> {businessDetails.phone}</p>
+                                    <p className="flex items-center gap-2"><MapPin size={12} /> {businessDetails.address}</p>
+                                  </div>
+                                </div>
                               </div>
+                              <div className="text-right">
+                                <h2 className="text-4xl font-black text-gray-900 mb-2">INVOICE</h2>
+                                <div className="text-sm text-gray-500 space-y-1">
+                                  <p><span className="font-bold text-gray-900">Invoice #:</span> INV-PREVIEW</p>
+                                  <p><span className="font-bold text-gray-900">Date:</span> {new Date().toLocaleDateString()}</p>
+                                  <p><span className="font-bold text-gray-900">Due Date:</span> {new Date(Date.now() + 1296000000).toLocaleDateString()}</p>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="h-px bg-gray-100 w-full" />
+
+                            {/* Bill To */}
+                            <div>
+                              <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">BILL TO</h4>
                               <div className="space-y-1">
-                                <h3 className="text-2xl font-bold tracking-tight">{businessDetails.name || 'CODENOVA ERM'}</h3>
-                                <div className="space-y-0.5 text-sm text-gray-500">
-                                  <p className="flex items-center gap-2"><Mail size={12} /> {businessDetails.email}</p>
-                                  <p className="flex items-center gap-2"><Phone size={12} /> {businessDetails.phone}</p>
-                                  <p className="flex items-center gap-2"><MapPin size={12} /> {businessDetails.address}</p>
-                                </div>
+                                <p className="text-xl font-bold">{clientInfo.name}</p>
+                                <p className="text-gray-500">{clientInfo.address}</p>
+                                <p className="text-gray-500">{clientInfo.email}</p>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <h2 className="text-4xl font-black text-gray-900 mb-2">INVOICE</h2>
-                              <div className="text-sm text-gray-500 space-y-1">
-                                <p><span className="font-bold text-gray-900">Invoice #:</span> INV-PREVIEW</p>
-                                <p><span className="font-bold text-gray-900">Date:</span> {new Date().toLocaleDateString()}</p>
-                                <p><span className="font-bold text-gray-900">Due Date:</span> {new Date(Date.now() + 1296000000).toLocaleDateString()}</p>
-                              </div>
-                            </div>
-                          </div>
 
-                          <div className="h-px bg-gray-100 w-full" />
+                            <div className="h-px bg-gray-100 w-full" />
 
-                          {/* Bill To */}
-                          <div>
-                            <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">BILL TO</h4>
-                            <div className="space-y-1">
-                              <p className="text-xl font-bold">{clientInfo.name}</p>
-                              <p className="text-gray-500">{clientInfo.address}</p>
-                              <p className="text-gray-500">{clientInfo.email}</p>
-                            </div>
-                          </div>
-
-                          <div className="h-px bg-gray-100 w-full" />
-
-                          {/* Table */}
-                          <Table>
-                            <TableHeader>
-                              <TableRow className="border-b-2 border-gray-900 hover:bg-transparent">
-                                <TableHead className="text-gray-900 font-bold px-0">Item</TableHead>
-                                <TableHead className="text-gray-900 font-bold text-center">Qty</TableHead>
-                                <TableHead className="text-gray-900 font-bold text-right px-0">Total Price</TableHead>
-                              </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                              {lineItems.map((item, i) => (
-                                <TableRow key={i} className="border-b border-gray-100 hover:bg-transparent">
-                                  <TableCell className="py-4 px-0">
-                                    <p className="font-bold text-gray-900">{item.name}</p>
-                                    <p className="text-xs text-gray-500 mt-1">{item.description}</p>
-                                  </TableCell>
-                                  <TableCell className="text-center py-4">{item.quantity}</TableCell>
-                                  <TableCell className="text-right py-4 px-0 font-bold">₹{(item.price * item.quantity).toFixed(2)}</TableCell>
+                            {/* Table */}
+                            <Table>
+                              <TableHeader>
+                                <TableRow className="border-b-2 border-gray-900 hover:bg-transparent">
+                                  <TableHead className="text-gray-900 font-bold px-0">Item</TableHead>
+                                  <TableHead className="text-gray-900 font-bold text-center">Qty</TableHead>
+                                  <TableHead className="text-gray-900 font-bold text-right px-0">Total Price</TableHead>
                                 </TableRow>
-                              ))}
-                            </TableBody>
-                          </Table>
+                              </TableHeader>
+                              <TableBody>
+                                {lineItems.map((item, i) => (
+                                  <TableRow key={i} className="border-b border-gray-100 hover:bg-transparent">
+                                    <TableCell className="py-4 px-0">
+                                      <p className="font-bold text-gray-900">{item.name}</p>
+                                      <p className="text-xs text-gray-500 mt-1">{item.description}</p>
+                                    </TableCell>
+                                    <TableCell className="text-center py-4">{item.quantity}</TableCell>
+                                    <TableCell className="text-right py-4 px-0 font-bold">₹{(item.price * item.quantity).toFixed(2)}</TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
 
-                          {/* Totals */}
-                          <div className="flex justify-end">
-                            <div className="w-64 space-y-3">
-                              <div className="flex justify-between text-sm">
-                                <span className="text-gray-500">Subtotal</span>
-                                <span className="font-bold">₹{calculateSubtotal().toFixed(2)}</span>
-                              </div>
-                              {taxEnabled && (
+                            {/* Totals */}
+                            <div className="flex justify-end">
+                              <div className="w-64 space-y-3">
                                 <div className="flex justify-between text-sm">
-                                  <span className="text-gray-500">Tax (18%)</span>
-                                  <span className="font-bold">₹{calculateTax().toFixed(2)}</span>
+                                  <span className="text-gray-500">Subtotal</span>
+                                  <span className="font-bold">₹{calculateSubtotal().toFixed(2)}</span>
                                 </div>
-                              )}
-                              <div className="h-px bg-gray-900 w-full" />
-                              <div className="flex justify-between items-center">
-                                <span className="text-lg font-bold">Grand Total</span>
-                                <span className="text-2xl font-black text-amber-600">₹{calculateTotal().toFixed(2)}</span>
+                                {taxEnabled && (
+                                  <div className="flex justify-between text-sm">
+                                    <span className="text-gray-500">Tax (18%)</span>
+                                    <span className="font-bold">₹{calculateTax().toFixed(2)}</span>
+                                  </div>
+                                )}
+                                <div className="h-px bg-gray-900 w-full" />
+                                <div className="flex justify-between items-center">
+                                  <span className="text-lg font-bold">Grand Total</span>
+                                  <span className="text-2xl font-black text-amber-600">₹{calculateTotal().toFixed(2)}</span>
+                                </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                        <div className="bg-gray-50 p-6 flex gap-4">
+                        <div className="bg-gray-50 p-6 flex gap-4 relative z-20">
                           <Button 
                             variant="outline" 
                             onClick={() => setIsPreviewOpen(false)}

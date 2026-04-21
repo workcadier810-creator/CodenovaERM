@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { Plus, Trash2, FileText, Download, Search, CheckCircle2, Eye, Receipt, Mail, Phone, MapPin, Zap } from 'lucide-react';
+import { Plus, Trash2, FileText, Download, Search, CheckCircle2, Eye, Receipt, Mail, Phone, MapPin, Zap, Image as ImageIcon } from 'lucide-react';
 import { showSuccess, showError } from '@/utils/toast';
 import { InventoryItem } from './Inventory';
 import jsPDF from 'jspdf';
@@ -42,6 +42,7 @@ export interface Invoice {
     phone: string;
     address: string;
     email: string;
+    logo?: string;
   };
 }
 
@@ -125,7 +126,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
 
     const today = new Date();
     const dueDate = new Date();
-    dueDate.setDate(today.getDate() + 15); // Default 15 days due date
+    dueDate.setDate(today.getDate() + 15);
 
     const newInvoice: Invoice = {
       id: `INV-${Date.now().toString().slice(-6)}`,
@@ -159,18 +160,26 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
     const doc = new jsPDF();
     
     // 1. Top-Left Branding Block
-    doc.setFillColor(245, 158, 11); // Amber
-    doc.roundedRect(20, 15, 15, 15, 3, 3, 'F');
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(12);
-    doc.text('Z', 25, 25); // Placeholder icon letter
+    if (invoice.businessDetails.logo) {
+      try {
+        doc.addImage(invoice.businessDetails.logo, 'PNG', 20, 15, 15, 15);
+      } catch (e) {
+        doc.setFillColor(245, 158, 11);
+        doc.roundedRect(20, 15, 15, 15, 3, 3, 'F');
+      }
+    } else {
+      doc.setFillColor(245, 158, 11);
+      doc.roundedRect(20, 15, 15, 15, 3, 3, 'F');
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(12);
+      doc.text(invoice.businessDetails.name?.[0] || 'Z', 25, 25);
+    }
 
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(18);
     doc.setFont('helvetica', 'bold');
     doc.text(invoice.businessDetails.name || 'CODENOVA ERM', 40, 26);
 
-    // Contact List with labels (simulating icons)
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.setTextColor(100, 100, 100);
@@ -190,7 +199,6 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
     doc.text(`Date: ${invoice.date}`, 190, 45, { align: 'right' });
     doc.text(`Due Date: ${invoice.dueDate}`, 190, 50, { align: 'right' });
 
-    // Horizontal Line
     doc.setDrawColor(230, 230, 230);
     doc.line(20, 60, 190, 60);
 
@@ -204,10 +212,8 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
     doc.text(invoice.clientAddress, 20, 87);
     doc.text(invoice.clientEmail, 20, 92);
 
-    // Horizontal Line
     doc.line(20, 100, 190, 100);
 
-    // Transactional Table
     const tableData = invoice.items.map(item => [
       { content: `${item.name}\n${item.description}`, styles: { fontSize: 10 } },
       item.quantity.toString(),
@@ -229,7 +235,6 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
     
     const finalY = (doc as any).lastAutoTable.finalY;
 
-    // 4. Financial Summary
     doc.setFontSize(10);
     doc.text('Subtotal:', 140, finalY + 15);
     doc.text(`Rs. ${invoice.subtotal.toFixed(2)}`, 190, finalY + 15, { align: 'right' });
@@ -453,8 +458,12 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                           {/* Header */}
                           <div className="flex justify-between items-start">
                             <div className="flex gap-4">
-                              <div className="w-16 h-16 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20">
-                                <Zap className="text-black" size={32} />
+                              <div className="w-16 h-16 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20 overflow-hidden">
+                                {businessDetails.logo ? (
+                                  <img src={businessDetails.logo} alt="Logo" className="w-full h-full object-contain p-2" />
+                                ) : (
+                                  <Zap className="text-black" size={32} />
+                                )}
                               </div>
                               <div className="space-y-1">
                                 <h3 className="text-2xl font-bold tracking-tight">{businessDetails.name || 'CODENOVA ERM'}</h3>

@@ -3,18 +3,19 @@ import Layout from '@/components/Layout';
 import CRM, { Customer } from '@/components/CRM';
 import Inventory, { InventoryItem } from '@/components/Inventory';
 import Invoicing, { Invoice } from '@/components/Invoicing';
-import Settings from '@/components/Settings';
+import Settings, { BusinessDetails } from '@/components/Settings';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('crm');
   
   // Persistent State
-  const [businessDetails, setBusinessDetails] = useLocalStorage('codenova_business', {
+  const [businessDetails, setBusinessDetails] = useLocalStorage<BusinessDetails>('codenova_business', {
     name: '',
     phone: '',
     address: '',
-    email: ''
+    email: '',
+    logo: ''
   });
   
   const [customers, setCustomers] = useLocalStorage<Customer[]>('codenova_customers', []);

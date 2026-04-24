@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { Plus, Trash2, FileText, Download, Search, CheckCircle2, Eye, Receipt, Mail, Phone, MapPin, Zap, Image as ImageIcon, Percent } from 'lucide-react';
 import { showSuccess, showError } from '@/utils/toast';
 import { InventoryItem } from './Inventory';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 
 interface InvoiceItem {
@@ -60,7 +60,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
   const [lineItems, setLineItems] = useState<InvoiceItem[]>([]);
   const [search, setSearch] = useState('');
   const [taxEnabled, setTaxEnabled] = useState(false);
-  const [taxRate, setTaxRate] = useState(18); // Default 18%
+  const [taxRate, setTaxRate] = useState<number | "">(18); 
   const [paymentCondition, setPaymentCondition] = useState<PaymentCondition>('Payment at time');
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
@@ -95,8 +95,13 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
     return lineItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   };
 
+  const getEffectiveTaxRate = () => {
+    if (!taxEnabled) return 0;
+    return taxRate === "" ? 18 : taxRate;
+  };
+
   const calculateTax = () => {
-    return taxEnabled ? calculateSubtotal() * (taxRate / 100) : 0;
+    return calculateSubtotal() * (getEffectiveTaxRate() / 100);
   };
 
   const calculateTotal = () => {
@@ -138,7 +143,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
       items: lineItems,
       subtotal: calculateSubtotal(),
       taxAmount: calculateTax(),
-      taxRate: taxEnabled ? taxRate : 0,
+      taxRate: getEffectiveTaxRate(),
       total: calculateTotal(),
       taxEnabled,
       paymentCondition,
@@ -152,6 +157,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
     setClientInfo({ name: '', email: '', address: '' });
     setLineItems([]);
     setTaxEnabled(false);
+    setTaxRate(18);
     setPaymentCondition('Payment at time');
     setIsPreviewOpen(false);
     showSuccess("Invoice generated and stock updated!");
@@ -352,9 +358,12 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                         <Input 
                           type="number"
                           value={taxRate}
-                          onChange={e => setTaxRate(parseFloat(e.target.value) || 0)}
+                          onChange={e => {
+                            const val = e.target.value;
+                            setTaxRate(val === "" ? "" : parseFloat(val));
+                          }}
                           className="bg-[#121212] border-amber-900/30 text-white"
-                          placeholder="18"
+                          placeholder="18 (Default)"
                         />
                       </div>
                     )}
@@ -462,7 +471,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                     </div>
                     {taxEnabled && (
                       <div className="flex justify-end gap-8 text-sm text-gray-400">
-                        <span>Tax ({taxRate}%):</span>
+                        <span>Tax ({getEffectiveTaxRate()}%):</span>
                         <span className="text-white">₹{calculateTax().toFixed(2)}</span>
                       </div>
                     )}
@@ -568,7 +577,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                                 </div>
                                 {taxEnabled && (
                                   <div className="flex justify-between text-sm">
-                                    <span className="text-gray-500">Tax ({taxRate}%)</span>
+                                    <span className="text-gray-500">Tax ({getEffectiveTaxRate()}%)</span>
                                     <span className="font-bold">₹{calculateTax().toFixed(2)}</span>
                                   </div>
                                 )}

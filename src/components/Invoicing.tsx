@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { Plus, Trash2, FileText, Download, Search, CheckCircle2, Eye, Receipt, Mail, Phone, MapPin, Zap, Image as ImageIcon } from 'lucide-react';
+import { Plus, Trash2, FileText, Download, Search, CheckCircle2, Eye, Receipt, Mail, Phone, MapPin, Zap, Image as ImageIcon, Percent } from 'lucide-react';
 import { showSuccess, showError } from '@/utils/toast';
 import { InventoryItem } from './Inventory';
 import jsPDF from 'jspdf';
@@ -34,6 +34,7 @@ export interface Invoice {
   items: InvoiceItem[];
   subtotal: number;
   taxAmount: number;
+  taxRate: number;
   total: number;
   taxEnabled: boolean;
   paymentCondition: PaymentCondition;
@@ -54,13 +55,12 @@ interface InvoicingProps {
   onSaveInvoice: (invoice: Invoice) => void;
 }
 
-const TAX_RATE = 0.18; // 18% GST/Tax
-
 const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, onSaveInvoice }: InvoicingProps) => {
   const [clientInfo, setClientInfo] = useState({ name: '', email: '', address: '' });
   const [lineItems, setLineItems] = useState<InvoiceItem[]>([]);
   const [search, setSearch] = useState('');
   const [taxEnabled, setTaxEnabled] = useState(false);
+  const [taxRate, setTaxRate] = useState(18); // Default 18%
   const [paymentCondition, setPaymentCondition] = useState<PaymentCondition>('Payment at time');
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
@@ -96,7 +96,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
   };
 
   const calculateTax = () => {
-    return taxEnabled ? calculateSubtotal() * TAX_RATE : 0;
+    return taxEnabled ? calculateSubtotal() * (taxRate / 100) : 0;
   };
 
   const calculateTotal = () => {
@@ -138,6 +138,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
       items: lineItems,
       subtotal: calculateSubtotal(),
       taxAmount: calculateTax(),
+      taxRate: taxEnabled ? taxRate : 0,
       total: calculateTotal(),
       taxEnabled,
       paymentCondition,
@@ -162,18 +163,14 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
     // Watermark Logic
     if (invoice.businessDetails.logo) {
       try {
-        // Set transparency for watermark
         doc.saveGraphicsState();
-        // @ts-ignore - GState is available in jsPDF but types might be missing
-        const gState = new doc.GState({ opacity: 0.12 }); // Increased from 0.05
+        // @ts-ignore
+        const gState = new doc.GState({ opacity: 0.12 });
         doc.setGState(gState);
-        
-        // Center the watermark (A4 is 210x297mm)
         const imgWidth = 120;
         const imgHeight = 120;
         const x = (210 - imgWidth) / 2;
         const y = (297 - imgHeight) / 2;
-        
         doc.addImage(invoice.businessDetails.logo, 'PNG', x, y, imgWidth, imgHeight);
         doc.restoreGraphicsState();
       } catch (e) {
@@ -181,7 +178,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
       }
     }
 
-    // 1. Top-Left Branding Block
+    // Branding
     if (invoice.businessDetails.logo) {
       try {
         doc.addImage(invoice.businessDetails.logo, 'PNG', 20, 15, 15, 15);
@@ -192,9 +189,6 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
     } else {
       doc.setFillColor(245, 158, 11);
       doc.roundedRect(20, 15, 15, 15, 3, 3, 'F');
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(12);
-      doc.text(invoice.businessDetails.name?.[0] || 'Z', 25, 25);
     }
 
     doc.setTextColor(0, 0, 0);
@@ -209,7 +203,6 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
     doc.text(`P: ${invoice.businessDetails.phone || 'N/A'}`, 20, 45);
     doc.text(`A: ${invoice.businessDetails.address || 'N/A'}`, 20, 50);
 
-    // 2. Top-Right Metadata Block
     doc.setTextColor(0, 0, 0);
     doc.setFontSize(28);
     doc.setFont('helvetica', 'bold');
@@ -224,7 +217,6 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
     doc.setDrawColor(230, 230, 230);
     doc.line(20, 60, 190, 60);
 
-    // 3. Billing Section
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
     doc.text('BILL TO', 20, 75);
@@ -262,7 +254,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
     doc.text(`Rs. ${invoice.subtotal.toFixed(2)}`, 190, finalY + 15, { align: 'right' });
     
     if (invoice.taxEnabled) {
-      doc.text('Tax (18%):', 140, finalY + 22);
+      doc.text(`Tax (${invoice.taxRate}%):`, 140, finalY + 22);
       doc.text(`Rs. ${invoice.taxAmount.toFixed(2)}`, 190, finalY + 22, { align: 'right' });
     }
 
@@ -339,16 +331,33 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                   <CardTitle className="text-amber-500 text-lg">Billing Settings</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="flex items-center justify-between">
-                    <div className="space-y-0.5">
-                      <Label className="text-white">Apply Taxes (18%)</Label>
-                      <p className="text-xs text-gray-500">Toggle GST/VAT calculation</p>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="space-y-0.5">
+                        <Label className="text-white">Apply Taxes</Label>
+                        <p className="text-xs text-gray-500">Toggle GST/VAT calculation</p>
+                      </div>
+                      <Switch 
+                        checked={taxEnabled}
+                        onCheckedChange={setTaxEnabled}
+                        className="data-[state=checked]:bg-amber-600"
+                      />
                     </div>
-                    <Switch 
-                      checked={taxEnabled}
-                      onCheckedChange={setTaxEnabled}
-                      className="data-[state=checked]:bg-amber-600"
-                    />
+
+                    {taxEnabled && (
+                      <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <Label className="text-gray-400 flex items-center gap-2">
+                          <Percent size={14} /> Tax Percentage (%)
+                        </Label>
+                        <Input 
+                          type="number"
+                          value={taxRate}
+                          onChange={e => setTaxRate(parseFloat(e.target.value) || 0)}
+                          className="bg-[#121212] border-amber-900/30 text-white"
+                          placeholder="18"
+                        />
+                      </div>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -453,7 +462,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                     </div>
                     {taxEnabled && (
                       <div className="flex justify-end gap-8 text-sm text-gray-400">
-                        <span>Tax (18%):</span>
+                        <span>Tax ({taxRate}%):</span>
                         <span className="text-white">₹{calculateTax().toFixed(2)}</span>
                       </div>
                     )}
@@ -477,7 +486,6 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                       </DialogTrigger>
                       <DialogContent className="bg-white text-black max-w-3xl p-0 overflow-hidden rounded-2xl">
                         <div className="relative p-10 space-y-8 min-h-[600px]">
-                          {/* Watermark */}
                           {businessDetails.logo && (
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.08] z-0">
                               <img 
@@ -489,7 +497,6 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                           )}
 
                           <div className="relative z-10 space-y-8">
-                            {/* Header */}
                             <div className="flex justify-between items-start">
                               <div className="flex gap-4">
                                 <div className="w-16 h-16 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20 overflow-hidden">
@@ -520,7 +527,6 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
 
                             <div className="h-px bg-gray-100 w-full" />
 
-                            {/* Bill To */}
                             <div>
                               <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">BILL TO</h4>
                               <div className="space-y-1">
@@ -532,7 +538,6 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
 
                             <div className="h-px bg-gray-100 w-full" />
 
-                            {/* Table */}
                             <Table>
                               <TableHeader>
                                 <TableRow className="border-b-2 border-gray-900 hover:bg-transparent">
@@ -555,7 +560,6 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                               </TableBody>
                             </Table>
 
-                            {/* Totals */}
                             <div className="flex justify-end">
                               <div className="w-64 space-y-3">
                                 <div className="flex justify-between text-sm">
@@ -564,7 +568,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                                 </div>
                                 {taxEnabled && (
                                   <div className="flex justify-between text-sm">
-                                    <span className="text-gray-500">Tax (18%)</span>
+                                    <span className="text-gray-500">Tax ({taxRate}%)</span>
                                     <span className="font-bold">₹{calculateTax().toFixed(2)}</span>
                                   </div>
                                 )}

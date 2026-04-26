@@ -171,53 +171,44 @@ const CRM = ({ customers, onUpdate }: CRMProps) => {
         </Dialog>
       </header>
 
-      <div className="flex overflow-x-auto pb-6 gap-4 snap-x">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4">
         {stages.map(stage => (
-          <div key={stage} className="space-y-4 min-w-[280px] md:min-w-[320px] snap-start">
+          <div key={stage} className="space-y-4 min-w-0">
             <div className="flex items-center justify-between px-2">
-              <h3 className="font-bold text-sm flex items-center gap-2 whitespace-nowrap">
-                <span className={cn("w-2 h-2 rounded-full", getDotColor(stage))} />
+              <h3 className="font-bold text-[10px] uppercase tracking-wider flex items-center gap-2 whitespace-nowrap text-gray-400">
+                <span className={cn("w-1.5 h-1.5 rounded-full", getDotColor(stage))} />
                 {stage.replace(' stage', '')}
               </h3>
-              <span className="bg-[#1E1E1E] text-gray-400 text-[10px] px-2 py-0.5 rounded-full border border-amber-900/10">
+              <span className="bg-[#1E1E1E] text-gray-500 text-[10px] px-1.5 py-0.5 rounded-full border border-amber-900/10">
                 {customers.filter(c => c.stage === stage).length}
               </span>
             </div>
 
-            <div className="space-y-3 min-h-[200px]">
+            <div className="space-y-3 min-h-[100px]">
               {customers.filter(c => c.stage === stage).map(customer => (
                 <Card key={customer.id} className="bg-[#1E1E1E] border-amber-900/10 hover:border-amber-500/30 transition-all group">
-                  <CardContent className="p-4 space-y-3">
-                    <div className="flex justify-between items-start">
+                  <CardContent className="p-3 space-y-2">
+                    <div className="flex justify-between items-start gap-2">
                       <div className="overflow-hidden">
-                        <h4 className="font-bold text-base text-white group-hover:text-amber-400 transition-colors truncate">{customer.name}</h4>
-                        <p className="text-xs text-gray-400 flex items-center gap-1 mt-1 truncate">
-                          <Building size={12} /> {customer.company}
+                        <h4 className="font-bold text-xs text-white group-hover:text-amber-400 transition-colors truncate">{customer.name}</h4>
+                        <p className="text-[10px] text-gray-500 flex items-center gap-1 mt-0.5 truncate">
+                          <Building size={10} /> {customer.company}
                         </p>
                       </div>
                       <button 
                         onClick={() => deleteCustomer(customer.id)}
-                        className="text-gray-600 hover:text-red-500 transition-colors flex-shrink-0 p-1"
+                        className="text-gray-600 hover:text-red-500 transition-colors flex-shrink-0 p-0.5"
                       >
-                        <Trash2 size={14} />
+                        <Trash2 size={12} />
                       </button>
                     </div>
 
-                    <div className="space-y-1">
-                      <p className="text-xs text-gray-500 flex items-center gap-2 truncate">
-                        <Mail size={12} /> {customer.email || 'No email'}
-                      </p>
-                      <p className="text-xs text-gray-500 flex items-center gap-2 truncate">
-                        <Phone size={12} /> {customer.phone || 'No phone'}
-                      </p>
-                    </div>
-
-                    <div className="pt-2 flex flex-col gap-2">
+                    <div className="pt-1 flex flex-col gap-1.5">
                       <Select 
                         value={customer.stage} 
                         onValueChange={(v) => updateStage(customer.id, v as CustomerStage)}
                       >
-                        <SelectTrigger className={cn("h-8 text-[10px] px-3 border-none", getStageColor(customer.stage))}>
+                        <SelectTrigger className={cn("h-6 text-[9px] px-2 border-none", getStageColor(customer.stage))}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-[#1E1E1E] border-amber-900/20 text-white">
@@ -229,10 +220,10 @@ const CRM = ({ customers, onUpdate }: CRMProps) => {
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          className="h-8 text-[10px] text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 w-full"
+                          className="h-6 text-[9px] text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 w-full p-0"
                           onClick={() => updateStage(customer.id, stages[stages.indexOf(stage) + 1])}
                         >
-                          Advance <ArrowRight size={12} className="ml-1" />
+                          Next <ArrowRight size={10} className="ml-1" />
                         </Button>
                       )}
                     </div>
@@ -240,8 +231,8 @@ const CRM = ({ customers, onUpdate }: CRMProps) => {
                 </Card>
               ))}
               {customers.filter(c => c.stage === stage).length === 0 && (
-                <div className="border-2 border-dashed border-amber-900/10 rounded-xl p-8 text-center">
-                  <p className="text-gray-600 text-xs italic">Empty</p>
+                <div className="border border-dashed border-amber-900/10 rounded-lg p-4 text-center">
+                  <p className="text-gray-700 text-[10px] italic">Empty</p>
                 </div>
               )}
             </div>

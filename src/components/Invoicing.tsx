@@ -278,18 +278,18 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
   );
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <header>
-        <h2 className="text-3xl font-bold text-white">Invoicing & Billing</h2>
-        <p className="text-gray-400 mt-1">Generate professional invoices and track payment history.</p>
+        <h2 className="text-2xl md:text-3xl font-bold text-white">Invoicing & Billing</h2>
+        <p className="text-sm md:text-base text-gray-400 mt-1">Generate professional invoices and track payment history.</p>
       </header>
 
       <Tabs defaultValue="create" className="w-full">
-        <TabsList className="bg-[#1E1E1E] border border-amber-900/20 p-1 rounded-xl mb-6">
-          <TabsTrigger value="create" className="rounded-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white">
+        <TabsList className="bg-[#1E1E1E] border border-amber-900/20 p-1 rounded-xl mb-6 w-full sm:w-auto">
+          <TabsTrigger value="create" className="flex-1 sm:flex-none rounded-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white">
             Create Invoice
           </TabsTrigger>
-          <TabsTrigger value="history" className="rounded-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white">
+          <TabsTrigger value="history" className="flex-1 sm:flex-none rounded-lg data-[state=active]:bg-amber-600 data-[state=active]:text-white">
             Invoice History
           </TabsTrigger>
         </TabsList>
@@ -390,81 +390,83 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
             </div>
 
             <Card className="bg-[#1E1E1E] border-amber-900/20 shadow-xl lg:col-span-2">
-              <CardHeader className="flex flex-row items-center justify-between">
+              <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <CardTitle className="text-amber-500 text-lg">Invoice Items</CardTitle>
-                <Button onClick={addLineItem} variant="outline" className="border-amber-600 text-amber-500 hover:bg-amber-600 hover:text-white">
+                <Button onClick={addLineItem} variant="outline" className="border-amber-600 text-amber-500 hover:bg-amber-600 hover:text-white w-full sm:w-auto">
                   <Plus size={16} className="mr-2" /> Add Item
                 </Button>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow className="border-amber-900/20">
-                      <TableHead className="text-gray-400">Resource</TableHead>
-                      <TableHead className="text-gray-400 w-24">Qty</TableHead>
-                      <TableHead className="text-gray-400 w-32">Price</TableHead>
-                      <TableHead className="text-gray-400 w-32">Total</TableHead>
-                      <TableHead className="w-12"></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {lineItems.map((item, index) => (
-                      <TableRow key={index} className="border-amber-900/10">
-                        <TableCell>
-                          <Select 
-                            value={item.inventoryId} 
-                            onValueChange={v => updateLineItem(index, 'inventoryId', v)}
-                          >
-                            <SelectTrigger className="bg-[#121212] border-amber-900/30 text-white">
-                              <SelectValue placeholder="Select item..." />
-                            </SelectTrigger>
-                            <SelectContent className="bg-[#1E1E1E] border-amber-900/20 text-white">
-                              {inventory.map(inv => (
-                                <SelectItem key={inv.id} value={inv.id} disabled={inv.stock <= 0}>
-                                  {inv.name} ({inv.stock} in stock)
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </TableCell>
-                        <TableCell>
-                          <Input 
-                            type="number" 
-                            value={item.quantity}
-                            onChange={e => updateLineItem(index, 'quantity', parseInt(e.target.value))}
-                            className="bg-[#121212] border-amber-900/30 text-white"
-                          />
-                        </TableCell>
-                        <TableCell className="text-white font-mono">
-                          ₹{item.price.toFixed(2)}
-                        </TableCell>
-                        <TableCell className="text-amber-500 font-bold font-mono">
-                          ₹{(item.price * item.quantity).toFixed(2)}
-                        </TableCell>
-                        <TableCell>
-                          <Button 
-                            variant="ghost" 
-                            size="icon" 
-                            onClick={() => removeLineItem(index)}
-                            className="text-gray-600 hover:text-red-500"
-                          >
-                            <Trash2 size={16} />
-                          </Button>
-                        </TableCell>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-amber-900/20">
+                        <TableHead className="text-gray-400 whitespace-nowrap">Resource</TableHead>
+                        <TableHead className="text-gray-400 w-24 whitespace-nowrap">Qty</TableHead>
+                        <TableHead className="text-gray-400 w-32 whitespace-nowrap">Price</TableHead>
+                        <TableHead className="text-gray-400 w-32 whitespace-nowrap">Total</TableHead>
+                        <TableHead className="w-12"></TableHead>
                       </TableRow>
-                    ))}
-                    {lineItems.length === 0 && (
-                      <TableRow>
-                        <TableCell colSpan={5} className="h-24 text-center text-gray-500 italic">
-                          No items added yet.
-                        </TableCell>
-                      </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
+                    </TableHeader>
+                    <TableBody>
+                      {lineItems.map((item, index) => (
+                        <TableRow key={index} className="border-amber-900/10">
+                          <TableCell className="min-w-[200px]">
+                            <Select 
+                              value={item.inventoryId} 
+                              onValueChange={v => updateLineItem(index, 'inventoryId', v)}
+                            >
+                              <SelectTrigger className="bg-[#121212] border-amber-900/30 text-white">
+                                <SelectValue placeholder="Select item..." />
+                              </SelectTrigger>
+                              <SelectContent className="bg-[#1E1E1E] border-amber-900/20 text-white">
+                                {inventory.map(inv => (
+                                  <SelectItem key={inv.id} value={inv.id} disabled={inv.stock <= 0}>
+                                    {inv.name} ({inv.stock} in stock)
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell>
+                            <Input 
+                              type="number" 
+                              value={item.quantity}
+                              onChange={e => updateLineItem(index, 'quantity', parseInt(e.target.value))}
+                              className="bg-[#121212] border-amber-900/30 text-white"
+                            />
+                          </TableCell>
+                          <TableCell className="text-white font-mono whitespace-nowrap">
+                            ₹{item.price.toFixed(2)}
+                          </TableCell>
+                          <TableCell className="text-amber-500 font-bold font-mono whitespace-nowrap">
+                            ₹{(item.price * item.quantity).toFixed(2)}
+                          </TableCell>
+                          <TableCell>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              onClick={() => removeLineItem(index)}
+                              className="text-gray-600 hover:text-red-500"
+                            >
+                              <Trash2 size={16} />
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                      {lineItems.length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={5} className="h-24 text-center text-gray-500 italic">
+                            No items added yet.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
 
-                <div className="mt-8 flex flex-col items-end gap-4">
-                  <div className="text-right space-y-1">
+                <div className="mt-8 flex flex-col items-stretch sm:items-end gap-6">
+                  <div className="text-right space-y-2">
                     <div className="flex justify-end gap-8 text-sm text-gray-400">
                       <span>Subtotal:</span>
                       <span className="text-white">₹{calculateSubtotal().toFixed(2)}</span>
@@ -477,56 +479,56 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                     )}
                     <div className="flex justify-end gap-8 pt-2">
                       <span className="text-gray-400">Grand Total:</span>
-                      <span className="text-3xl font-bold text-white">₹{calculateTotal().toFixed(2)}</span>
+                      <span className="text-2xl md:text-3xl font-bold text-white">₹{calculateTotal().toFixed(2)}</span>
                     </div>
                   </div>
                   
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
                       <DialogTrigger asChild>
                         <Button 
                           variant="outline" 
-                          className="border-amber-600 text-amber-500 hover:bg-amber-600 hover:text-white px-6 py-7 rounded-xl"
+                          className="border-amber-600 text-amber-500 hover:bg-amber-600 hover:text-white px-6 py-7 rounded-xl w-full sm:w-auto"
                           disabled={lineItems.length === 0 || !clientInfo.name}
                         >
                           <Eye className="mr-2" size={20} />
                           Preview
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="bg-white text-black max-w-3xl p-0 overflow-hidden rounded-2xl">
-                        <div className="relative p-10 space-y-8 min-h-[600px]">
+                      <DialogContent className="bg-white text-black max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden rounded-2xl">
+                        <div className="relative p-6 md:p-10 space-y-6 md:space-y-8 min-h-[400px] md:min-h-[600px] overflow-y-auto max-h-[80vh]">
                           {businessDetails.logo && (
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.08] z-0">
                               <img 
                                 src={businessDetails.logo} 
                                 alt="Watermark" 
-                                className="w-96 h-96 object-contain grayscale"
+                                className="w-48 md:w-96 h-48 md:h-96 object-contain grayscale"
                               />
                             </div>
                           )}
 
-                          <div className="relative z-10 space-y-8">
-                            <div className="flex justify-between items-start">
+                          <div className="relative z-10 space-y-6 md:space-y-8">
+                            <div className="flex flex-col md:flex-row justify-between items-start gap-6">
                               <div className="flex gap-4">
-                                <div className="w-16 h-16 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20 overflow-hidden">
+                                <div className="w-12 h-12 md:w-16 md:h-16 bg-amber-500 rounded-xl flex items-center justify-center shadow-lg shadow-amber-500/20 overflow-hidden flex-shrink-0">
                                   {businessDetails.logo ? (
                                     <img src={businessDetails.logo} alt="Logo" className="w-full h-full object-contain p-2" />
                                   ) : (
-                                    <Zap className="text-black" size={32} />
+                                    <Zap className="text-black" size={24} />
                                   )}
                                 </div>
                                 <div className="space-y-1">
-                                  <h3 className="text-2xl font-bold tracking-tight">{businessDetails.name || 'CODENOVA ERM'}</h3>
-                                  <div className="space-y-0.5 text-sm text-gray-500">
+                                  <h3 className="text-xl md:text-2xl font-bold tracking-tight">{businessDetails.name || 'CODENOVA ERM'}</h3>
+                                  <div className="space-y-0.5 text-xs md:text-sm text-gray-500">
                                     <p className="flex items-center gap-2"><Mail size={12} /> {businessDetails.email}</p>
                                     <p className="flex items-center gap-2"><Phone size={12} /> {businessDetails.phone}</p>
                                     <p className="flex items-center gap-2"><MapPin size={12} /> {businessDetails.address}</p>
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-right">
-                                <h2 className="text-4xl font-black text-gray-900 mb-2">INVOICE</h2>
-                                <div className="text-sm text-gray-500 space-y-1">
+                              <div className="text-left md:text-right w-full md:w-auto">
+                                <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-2">INVOICE</h2>
+                                <div className="text-xs md:text-sm text-gray-500 space-y-1">
                                   <p><span className="font-bold text-gray-900">Invoice #:</span> INV-PREVIEW</p>
                                   <p><span className="font-bold text-gray-900">Date:</span> {new Date().toLocaleDateString()}</p>
                                   <p><span className="font-bold text-gray-900">Due Date:</span> {new Date(Date.now() + 1296000000).toLocaleDateString()}</p>
@@ -537,60 +539,62 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                             <div className="h-px bg-gray-100 w-full" />
 
                             <div>
-                              <h4 className="text-xs font-black text-gray-400 uppercase tracking-widest mb-3">BILL TO</h4>
+                              <h4 className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">BILL TO</h4>
                               <div className="space-y-1">
-                                <p className="text-xl font-bold">{clientInfo.name}</p>
-                                <p className="text-gray-500">{clientInfo.address}</p>
-                                <p className="text-gray-500">{clientInfo.email}</p>
+                                <p className="text-lg md:text-xl font-bold">{clientInfo.name}</p>
+                                <p className="text-xs md:text-sm text-gray-500">{clientInfo.address}</p>
+                                <p className="text-xs md:text-sm text-gray-500">{clientInfo.email}</p>
                               </div>
                             </div>
 
                             <div className="h-px bg-gray-100 w-full" />
 
-                            <Table>
-                              <TableHeader>
-                                <TableRow className="border-b-2 border-gray-900 hover:bg-transparent">
-                                  <TableHead className="text-gray-900 font-bold px-0">Item</TableHead>
-                                  <TableHead className="text-gray-900 font-bold text-center">Qty</TableHead>
-                                  <TableHead className="text-gray-900 font-bold text-right px-0">Total Price</TableHead>
-                                </TableRow>
-                              </TableHeader>
-                              <TableBody>
-                                {lineItems.map((item, i) => (
-                                  <TableRow key={i} className="border-b border-gray-100 hover:bg-transparent">
-                                    <TableCell className="py-4 px-0">
-                                      <p className="font-bold text-gray-900">{item.name}</p>
-                                      <p className="text-xs text-gray-500 mt-1">{item.description}</p>
-                                    </TableCell>
-                                    <TableCell className="text-center py-4">{item.quantity}</TableCell>
-                                    <TableCell className="text-right py-4 px-0 font-bold">₹{(item.price * item.quantity).toFixed(2)}</TableCell>
+                            <div className="overflow-x-auto">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow className="border-b-2 border-gray-900 hover:bg-transparent">
+                                    <TableHead className="text-gray-900 font-bold px-0">Item</TableHead>
+                                    <TableHead className="text-gray-900 font-bold text-center">Qty</TableHead>
+                                    <TableHead className="text-gray-900 font-bold text-right px-0">Total Price</TableHead>
                                   </TableRow>
-                                ))}
-                              </TableBody>
-                            </Table>
+                                </TableHeader>
+                                <TableBody>
+                                  {lineItems.map((item, i) => (
+                                    <TableRow key={i} className="border-b border-gray-100 hover:bg-transparent">
+                                      <TableCell className="py-4 px-0">
+                                        <p className="font-bold text-gray-900 text-sm">{item.name}</p>
+                                        <p className="text-[10px] text-gray-500 mt-1">{item.description}</p>
+                                      </TableCell>
+                                      <TableCell className="text-center py-4 text-sm">{item.quantity}</TableCell>
+                                      <TableCell className="text-right py-4 px-0 font-bold text-sm">₹{(item.price * item.quantity).toFixed(2)}</TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </div>
 
                             <div className="flex justify-end">
-                              <div className="w-64 space-y-3">
-                                <div className="flex justify-between text-sm">
+                              <div className="w-full sm:w-64 space-y-3">
+                                <div className="flex justify-between text-xs md:text-sm">
                                   <span className="text-gray-500">Subtotal</span>
                                   <span className="font-bold">₹{calculateSubtotal().toFixed(2)}</span>
                                 </div>
                                 {taxEnabled && (
-                                  <div className="flex justify-between text-sm">
+                                  <div className="flex justify-between text-xs md:text-sm">
                                     <span className="text-gray-500">Tax ({getEffectiveTaxRate()}%)</span>
                                     <span className="font-bold">₹{calculateTax().toFixed(2)}</span>
                                   </div>
                                 )}
                                 <div className="h-px bg-gray-900 w-full" />
                                 <div className="flex justify-between items-center">
-                                  <span className="text-lg font-bold">Grand Total</span>
-                                  <span className="text-2xl font-black text-amber-600">₹{calculateTotal().toFixed(2)}</span>
+                                  <span className="text-base md:text-lg font-bold">Grand Total</span>
+                                  <span className="text-xl md:text-2xl font-black text-amber-600">₹{calculateTotal().toFixed(2)}</span>
                                 </div>
                               </div>
                             </div>
                           </div>
                         </div>
-                        <div className="bg-gray-50 p-6 flex gap-4 relative z-20">
+                        <div className="bg-gray-50 p-4 md:p-6 flex flex-col sm:flex-row gap-3 relative z-20">
                           <Button 
                             variant="outline" 
                             onClick={() => setIsPreviewOpen(false)}
@@ -602,7 +606,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                             onClick={handleGenerate}
                             className="flex-[2] bg-amber-600 hover:bg-amber-700 text-white py-6 rounded-xl shadow-lg shadow-amber-600/20"
                           >
-                            Confirm & Generate Invoice
+                            Confirm & Generate
                           </Button>
                         </div>
                       </DialogContent>
@@ -610,7 +614,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
 
                     <Button 
                       onClick={handleGenerate}
-                      className="bg-amber-600 hover:bg-amber-700 text-white px-10 py-7 rounded-xl text-lg shadow-lg shadow-amber-600/20"
+                      className="bg-amber-600 hover:bg-amber-700 text-white px-10 py-7 rounded-xl text-lg shadow-lg shadow-amber-600/20 w-full sm:w-auto"
                       disabled={lineItems.length === 0 || !clientInfo.name}
                     >
                       <CheckCircle2 className="mr-2" size={24} />
@@ -625,69 +629,71 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
 
         <TabsContent value="history">
           <Card className="bg-[#1E1E1E] border-amber-900/20 shadow-xl">
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <CardTitle className="text-amber-500">Invoice History</CardTitle>
                 <CardDescription className="text-gray-400">View and download past transactions.</CardDescription>
               </div>
-              <div className="relative w-64">
+              <div className="relative w-full sm:w-64">
                 <Search className="absolute left-3 top-3 text-gray-500" size={18} />
                 <Input 
                   placeholder="Search invoices..." 
                   value={search}
                   onChange={e => setSearch(e.target.value)}
-                  className="bg-[#121212] border-amber-900/30 pl-10 text-white"
+                  className="bg-[#121212] border-amber-900/30 pl-10 text-white w-full"
                 />
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-amber-900/20">
-                    <TableHead className="text-gray-400">Invoice ID</TableHead>
-                    <TableHead className="text-gray-400">Date</TableHead>
-                    <TableHead className="text-gray-400">Client</TableHead>
-                    <TableHead className="text-gray-400">Terms</TableHead>
-                    <TableHead className="text-gray-400">Total</TableHead>
-                    <TableHead className="text-gray-400 text-right">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredInvoices.map((inv) => (
-                    <TableRow key={inv.id} className="border-amber-900/10 hover:bg-amber-900/5">
-                      <TableCell className="font-mono text-amber-500 font-bold">{inv.id}</TableCell>
-                      <TableCell className="text-gray-300">{inv.date}</TableCell>
-                      <TableCell>
-                        <div className="text-white font-medium">{inv.clientName}</div>
-                        <div className="text-xs text-gray-500">{inv.clientEmail}</div>
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-xs bg-amber-900/20 text-amber-400 px-2 py-1 rounded-md border border-amber-900/30">
-                          {inv.paymentCondition}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-white font-bold">₹{inv.total.toFixed(2)}</TableCell>
-                      <TableCell className="text-right">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="border-amber-900/30 text-amber-500 hover:bg-amber-600 hover:text-white"
-                          onClick={() => downloadPDF(inv)}
-                        >
-                          <Download size={14} className="mr-2" /> PDF
-                        </Button>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-amber-900/20">
+                      <TableHead className="text-gray-400 whitespace-nowrap">Invoice ID</TableHead>
+                      <TableHead className="text-gray-400 whitespace-nowrap">Date</TableHead>
+                      <TableHead className="text-gray-400 whitespace-nowrap">Client</TableHead>
+                      <TableHead className="text-gray-400 whitespace-nowrap">Terms</TableHead>
+                      <TableHead className="text-gray-400 whitespace-nowrap">Total</TableHead>
+                      <TableHead className="text-gray-400 text-right whitespace-nowrap">Action</TableHead>
                     </TableRow>
-                  ))}
-                  {filteredInvoices.length === 0 && (
-                    <TableRow>
-                      <TableCell colSpan={6} className="h-32 text-center text-gray-500 italic">
-                        No invoices found.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredInvoices.map((inv) => (
+                      <TableRow key={inv.id} className="border-amber-900/10 hover:bg-amber-900/5">
+                        <TableCell className="font-mono text-amber-500 font-bold whitespace-nowrap">{inv.id}</TableCell>
+                        <TableCell className="text-gray-300 whitespace-nowrap">{inv.date}</TableCell>
+                        <TableCell>
+                          <div className="text-white font-medium whitespace-nowrap">{inv.clientName}</div>
+                          <div className="text-xs text-gray-500 truncate max-w-[120px]">{inv.clientEmail}</div>
+                        </TableCell>
+                        <TableCell>
+                          <span className="text-[10px] bg-amber-900/20 text-amber-400 px-2 py-1 rounded-md border border-amber-900/30 whitespace-nowrap">
+                            {inv.paymentCondition}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-white font-bold whitespace-nowrap">₹{inv.total.toFixed(2)}</TableCell>
+                        <TableCell className="text-right">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="border-amber-900/30 text-amber-500 hover:bg-amber-600 hover:text-white"
+                            onClick={() => downloadPDF(inv)}
+                          >
+                            <Download size={14} className="mr-1 md:mr-2" /> <span className="hidden sm:inline">PDF</span>
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                    {filteredInvoices.length === 0 && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="h-32 text-center text-gray-500 italic">
+                          No invoices found.
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

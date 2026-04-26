@@ -98,21 +98,21 @@ const CRM = ({ customers, onUpdate }: CRMProps) => {
   };
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <header className="flex justify-between items-end">
+    <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-white">Customer Pipeline</h2>
-          <p className="text-gray-400 mt-1">Track and manage your business relationships through the sales funnel.</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-white">Customer Pipeline</h2>
+          <p className="text-sm md:text-base text-gray-400 mt-1">Track and manage your business relationships.</p>
         </div>
         
         <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-amber-600 hover:bg-amber-700 text-white rounded-xl px-6 py-6 shadow-lg shadow-amber-600/20">
+            <Button className="bg-amber-600 hover:bg-amber-700 text-white rounded-xl px-6 py-6 shadow-lg shadow-amber-600/20 w-full sm:w-auto">
               <Plus className="mr-2" size={20} />
               New Customer
             </Button>
           </DialogTrigger>
-          <DialogContent className="bg-[#1E1E1E] border-amber-900/20 text-white">
+          <DialogContent className="bg-[#1E1E1E] border-amber-900/20 text-white max-w-[95vw] sm:max-w-md rounded-2xl">
             <DialogHeader>
               <DialogTitle className="text-amber-500">Add New Customer</DialogTitle>
             </DialogHeader>
@@ -133,7 +133,7 @@ const CRM = ({ customers, onUpdate }: CRMProps) => {
                   className="bg-[#121212] border-amber-900/30"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Email</Label>
                   <Input 
@@ -165,15 +165,15 @@ const CRM = ({ customers, onUpdate }: CRMProps) => {
                   </SelectContent>
                 </Select>
               </div>
-              <Button onClick={handleAdd} className="w-full bg-amber-600 hover:bg-amber-700 mt-4">Create Customer</Button>
+              <Button onClick={handleAdd} className="w-full bg-amber-600 hover:bg-amber-700 mt-4 py-6 rounded-xl">Create Customer</Button>
             </div>
           </DialogContent>
         </Dialog>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7 gap-4 overflow-x-auto pb-4">
+      <div className="flex overflow-x-auto pb-6 gap-4 snap-x">
         {stages.map(stage => (
-          <div key={stage} className="space-y-4 min-w-[200px]">
+          <div key={stage} className="space-y-4 min-w-[280px] md:min-w-[320px] snap-start">
             <div className="flex items-center justify-between px-2">
               <h3 className="font-bold text-sm flex items-center gap-2 whitespace-nowrap">
                 <span className={cn("w-2 h-2 rounded-full", getDotColor(stage))} />
@@ -187,37 +187,37 @@ const CRM = ({ customers, onUpdate }: CRMProps) => {
             <div className="space-y-3 min-h-[200px]">
               {customers.filter(c => c.stage === stage).map(customer => (
                 <Card key={customer.id} className="bg-[#1E1E1E] border-amber-900/10 hover:border-amber-500/30 transition-all group">
-                  <CardContent className="p-3 space-y-2">
+                  <CardContent className="p-4 space-y-3">
                     <div className="flex justify-between items-start">
                       <div className="overflow-hidden">
-                        <h4 className="font-bold text-sm text-white group-hover:text-amber-400 transition-colors truncate">{customer.name}</h4>
-                        <p className="text-[10px] text-gray-400 flex items-center gap-1 mt-0.5 truncate">
-                          <Building size={10} /> {customer.company}
+                        <h4 className="font-bold text-base text-white group-hover:text-amber-400 transition-colors truncate">{customer.name}</h4>
+                        <p className="text-xs text-gray-400 flex items-center gap-1 mt-1 truncate">
+                          <Building size={12} /> {customer.company}
                         </p>
                       </div>
                       <button 
                         onClick={() => deleteCustomer(customer.id)}
-                        className="text-gray-600 hover:text-red-500 transition-colors flex-shrink-0"
+                        className="text-gray-600 hover:text-red-500 transition-colors flex-shrink-0 p-1"
                       >
-                        <Trash2 size={12} />
+                        <Trash2 size={14} />
                       </button>
                     </div>
 
-                    <div className="space-y-0.5">
-                      <p className="text-[10px] text-gray-500 flex items-center gap-2 truncate">
-                        <Mail size={10} /> {customer.email || 'No email'}
+                    <div className="space-y-1">
+                      <p className="text-xs text-gray-500 flex items-center gap-2 truncate">
+                        <Mail size={12} /> {customer.email || 'No email'}
                       </p>
-                      <p className="text-[10px] text-gray-500 flex items-center gap-2 truncate">
-                        <Phone size={10} /> {customer.phone || 'No phone'}
+                      <p className="text-xs text-gray-500 flex items-center gap-2 truncate">
+                        <Phone size={12} /> {customer.phone || 'No phone'}
                       </p>
                     </div>
 
-                    <div className="pt-1 flex flex-col gap-2">
+                    <div className="pt-2 flex flex-col gap-2">
                       <Select 
                         value={customer.stage} 
                         onValueChange={(v) => updateStage(customer.id, v as CustomerStage)}
                       >
-                        <SelectTrigger className={cn("h-6 text-[9px] px-2 border-none", getStageColor(customer.stage))}>
+                        <SelectTrigger className={cn("h-8 text-[10px] px-3 border-none", getStageColor(customer.stage))}>
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="bg-[#1E1E1E] border-amber-900/20 text-white">
@@ -229,10 +229,10 @@ const CRM = ({ customers, onUpdate }: CRMProps) => {
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          className="h-6 text-[9px] text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 w-full"
+                          className="h-8 text-[10px] text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 w-full"
                           onClick={() => updateStage(customer.id, stages[stages.indexOf(stage) + 1])}
                         >
-                          Advance <ArrowRight size={10} className="ml-1" />
+                          Advance <ArrowRight size={12} className="ml-1" />
                         </Button>
                       )}
                     </div>
@@ -240,8 +240,8 @@ const CRM = ({ customers, onUpdate }: CRMProps) => {
                 </Card>
               ))}
               {customers.filter(c => c.stage === stage).length === 0 && (
-                <div className="border-2 border-dashed border-amber-900/10 rounded-xl p-4 text-center">
-                  <p className="text-gray-600 text-[10px] italic">Empty</p>
+                <div className="border-2 border-dashed border-amber-900/10 rounded-xl p-8 text-center">
+                  <p className="text-gray-600 text-xs italic">Empty</p>
                 </div>
               )}
             </div>

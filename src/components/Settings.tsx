@@ -46,39 +46,39 @@ const Settings = ({ details, onSave }: SettingsProps) => {
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <header>
-        <h2 className="text-3xl font-bold text-white">Business Identity</h2>
-        <p className="text-gray-400 mt-1">Manage your company information and branding for invoices.</p>
+        <h2 className="text-2xl md:text-3xl font-bold text-white">Business Identity</h2>
+        <p className="text-sm md:text-base text-gray-400 mt-1">Manage your company information and branding.</p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Logo Upload Card */}
         <Card className="bg-[#1E1E1E] border-amber-900/20 shadow-xl lg:col-span-1">
           <CardHeader>
-            <CardTitle className="text-amber-500 flex items-center gap-2">
+            <CardTitle className="text-amber-500 flex items-center gap-2 text-lg">
               <ImageIcon size={20} />
               Company Logo
             </CardTitle>
-            <CardDescription className="text-gray-400">
+            <CardDescription className="text-gray-400 text-xs">
               Upload your brand icon for documents.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center justify-center py-6">
             <div className="relative group">
-              <div className="w-32 h-32 rounded-2xl border-2 border-dashed border-amber-900/30 bg-[#121212] flex items-center justify-center overflow-hidden transition-all group-hover:border-amber-500/50">
+              <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl border-2 border-dashed border-amber-900/30 bg-[#121212] flex items-center justify-center overflow-hidden transition-all group-hover:border-amber-500/50">
                 {formData.logo ? (
                   <img src={formData.logo} alt="Logo Preview" className="w-full h-full object-contain p-2" />
                 ) : (
-                  <Upload className="text-gray-600 group-hover:text-amber-500 transition-colors" size={32} />
+                  <Upload className="text-gray-600 group-hover:text-amber-500 transition-colors" size={28} />
                 )}
               </div>
               {formData.logo && (
                 <button 
                   onClick={removeLogo}
-                  className="absolute -top-2 -right-2 bg-red-500 text-white p-1 rounded-full shadow-lg hover:bg-red-600 transition-colors"
+                  className="absolute -top-2 -right-2 bg-red-500 text-white p-1.5 rounded-full shadow-lg hover:bg-red-600 transition-colors"
                 >
-                  <X size={14} />
+                  <X size={12} />
                 </button>
               )}
             </div>
@@ -94,30 +94,30 @@ const Settings = ({ details, onSave }: SettingsProps) => {
             <Button 
               variant="outline" 
               onClick={() => fileInputRef.current?.click()}
-              className="mt-6 border-amber-900/30 text-amber-500 hover:bg-amber-500/10 w-full"
+              className="mt-6 border-amber-900/30 text-amber-500 hover:bg-amber-500/10 w-full py-6 rounded-xl"
             >
               {formData.logo ? 'Change Logo' : 'Upload Logo'}
             </Button>
-            <p className="text-[10px] text-gray-500 mt-2 text-center">Recommended: Square PNG or SVG</p>
+            <p className="text-[10px] text-gray-500 mt-3 text-center">Recommended: Square PNG or SVG</p>
           </CardContent>
         </Card>
 
         {/* Details Card */}
         <Card className="bg-[#1E1E1E] border-amber-900/20 shadow-xl lg:col-span-2">
           <CardHeader>
-            <CardTitle className="text-amber-500 flex items-center gap-2">
+            <CardTitle className="text-amber-500 flex items-center gap-2 text-lg">
               <Building2 size={20} />
               Company Profile
             </CardTitle>
-            <CardDescription className="text-gray-400">
+            <CardDescription className="text-gray-400 text-xs">
               These details will appear on all generated invoices.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-gray-300">Business Name</Label>
+                  <Label htmlFor="name" className="text-gray-300 text-sm">Business Name</Label>
                   <div className="relative">
                     <Building2 className="absolute left-3 top-3 text-gray-500" size={18} />
                     <Input
@@ -131,7 +131,7 @@ const Settings = ({ details, onSave }: SettingsProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-gray-300">Business Email</Label>
+                  <Label htmlFor="email" className="text-gray-300 text-sm">Business Email</Label>
                   <div className="relative">
                     <Mail className="absolute left-3 top-3 text-gray-500" size={18} />
                     <Input
@@ -146,7 +146,7 @@ const Settings = ({ details, onSave }: SettingsProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-gray-300">Phone Number</Label>
+                  <Label htmlFor="phone" className="text-gray-300 text-sm">Phone Number</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 text-gray-500" size={18} />
                     <Input
@@ -160,7 +160,7 @@ const Settings = ({ details, onSave }: SettingsProps) => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="address" className="text-gray-300">Business Address</Label>
+                  <Label htmlFor="address" className="text-gray-300 text-sm">Business Address</Label>
                   <div className="relative">
                     <MapPin className="absolute left-3 top-3 text-gray-500" size={18} />
                     <Input
@@ -175,9 +175,9 @@ const Settings = ({ details, onSave }: SettingsProps) => {
               </div>
 
               <div className="flex justify-end pt-4">
-                <Button type="submit" className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-6 rounded-xl shadow-lg shadow-amber-600/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+                <Button type="submit" className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-6 rounded-xl shadow-lg shadow-amber-600/20 transition-all hover:scale-[1.02] active:scale-[0.98] w-full sm:w-auto">
                   <Save className="mr-2" size={20} />
-                  Save Business Identity
+                  Save Identity
                 </Button>
               </div>
             </form>

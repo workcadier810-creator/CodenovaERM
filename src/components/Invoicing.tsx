@@ -22,7 +22,7 @@ interface InvoiceItem {
   price: number;
 }
 
-export type PaymentCondition = 'Advance' | 'Payment at time' | 'Credit';
+export type PaymentCondition = 'Advance' | 'Payment' | 'Credit';
 
 export interface Invoice {
   id: string;
@@ -61,7 +61,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
   const [search, setSearch] = useState('');
   const [taxEnabled, setTaxEnabled] = useState(false);
   const [taxRate, setTaxRate] = useState<number | "">(18); 
-  const [paymentCondition, setPaymentCondition] = useState<PaymentCondition>('Payment at time');
+  const [paymentCondition, setPaymentCondition] = useState<PaymentCondition>('Payment');
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const addLineItem = () => {
@@ -158,7 +158,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
     setLineItems([]);
     setTaxEnabled(false);
     setTaxRate(18);
-    setPaymentCondition('Payment at time');
+    setPaymentCondition('Payment');
     setIsPreviewOpen(false);
     showSuccess("Invoice generated and stock updated!");
   };
@@ -380,7 +380,7 @@ const Invoicing = ({ inventory, invoices, businessDetails, onUpdateInventory, on
                       </SelectTrigger>
                       <SelectContent className="bg-[#1E1E1E] border-amber-900/20 text-white">
                         <SelectItem value="Advance">Advance</SelectItem>
-                        <SelectItem value="Payment at time">Payment at time</SelectItem>
+                        <SelectItem value="Payment">Payment</SelectItem>
                         <SelectItem value="Credit">Credit</SelectItem>
                       </SelectContent>
                     </Select>

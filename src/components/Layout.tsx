@@ -101,7 +101,7 @@ const Layout = ({ children, activeTab, setActiveTab }: LayoutProps) => {
         <div className="absolute top-0 right-0 w-64 md:w-96 h-64 md:h-96 bg-amber-600/5 blur-[80px] md:blur-[120px] rounded-full -z-10" />
         <div className="absolute bottom-0 left-0 w-64 md:w-96 h-64 md:h-96 bg-orange-600/5 blur-[80px] md:blur-[120px] rounded-full -z-10" />
         
-        <div className="p-4 md:p-8 max-w-7xl mx-auto">
+        <div className="p-4 md:p-8 w-full mx-auto">
           {children}
         </div>
       </main>
